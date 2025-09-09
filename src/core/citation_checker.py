@@ -112,15 +112,29 @@ class CitationChecker:
     
     def extract_citations_and_references(self):
         """提取文中的引用和参考文献列表"""
-        full_text = []
-        for paragraph in self.doc.paragraphs:
-            full_text.append(paragraph.text)
+        # 查找参考文献部分
+        references_start = None
+        for i, paragraph in enumerate(self.doc.paragraphs):
+            if '参考文献' in paragraph.text or 'References' in paragraph.text:
+                references_start = i
+                break
         
-        full_text_str = '\n'.join(full_text)
+        # 只在正文中（参考文献之前）提取引用
+        body_text = []
+        if references_start is not None:
+            # 只提取正文部分的文本
+            for i in range(references_start):
+                body_text.append(self.doc.paragraphs[i].text)
+        else:
+            # 如果没有找到参考文献部分，提取所有文本
+            for paragraph in self.doc.paragraphs:
+                body_text.append(paragraph.text)
+        
+        body_text_str = '\n'.join(body_text)
         
         # 提取文中的引用（包括单个引用和范围引用，例如[1], [2-5]等格式）
         citation_pattern = r'\[\d+(?:-\d+)?\]'
-        raw_citations = re.findall(citation_pattern, full_text_str)
+        raw_citations = re.findall(citation_pattern, body_text_str)
         
         # 展开范围引用为单个引用
         expanded_citations = set()
@@ -141,13 +155,7 @@ class CitationChecker:
         # 转换为列表并去重
         self.citations = list(expanded_citations)
         
-        # 查找参考文献部分
-        references_start = None
-        for i, paragraph in enumerate(self.doc.paragraphs):
-            if '参考文献' in paragraph.text or 'References' in paragraph.text:
-                references_start = i
-                break
-                
+        # 提取参考文献内容
         if references_start is not None:
             # 提取参考文献内容
             for i in range(references_start + 1, len(self.doc.paragraphs)):

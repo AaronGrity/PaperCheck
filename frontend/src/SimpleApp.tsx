@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Layout, Typography, message, Upload, Button, Select, Progress, Card, List, Badge } from 'antd';
-import { UploadOutlined, PlayCircleOutlined, FileTextOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Layout, Typography, message, Upload, Button, Select, Progress, Card, List, Badge, Tooltip } from 'antd';
+import { UploadOutlined, PlayCircleOutlined, FileTextOutlined, DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { SimpleAnalysisService, UploadResult, DocumentPreview, AnalysisProgress, AnalysisResult, Problem } from './services/SimpleAnalysisService';
 import './SimpleApp.css';
 
@@ -98,6 +98,8 @@ const SimpleApp: React.FC = () => {
   }, [taskId, analysisMode]);
 
   // 导出报告
+  const [exportFormat, setExportFormat] = useState<string>('html');
+  
   const handleExportReport = useCallback(async () => {
     if (!taskId || !analysisResult) {
       message.error('没有可导出的报告');
@@ -107,16 +109,17 @@ const SimpleApp: React.FC = () => {
     try {
       message.loading('正在准备导出文件...', 0);
       
-      const blob = await analysisService.exportReport(taskId);
+      const blob = await analysisService.exportReport(taskId, exportFormat);
       
       // 创建下载链接
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       
-      // 生成文件名
+      // 根据格式生成文件名
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-      link.download = `citation_report_${analysisResult.analysis_mode}_${timestamp}.html`;
+      const fileExtension = exportFormat === 'txt' ? '.txt' : exportFormat === 'pdf' ? '.pdf' : '.html';
+      link.download = `citation_report_${analysisResult.analysis_mode}_${timestamp}${fileExtension}`;
       
       // 触发下载
       document.body.appendChild(link);
@@ -131,7 +134,7 @@ const SimpleApp: React.FC = () => {
       message.destroy();
       message.error(`导出失败: ${error}`);
     }
-  }, [taskId, analysisResult]);
+  }, [taskId, analysisResult, exportFormat]);
 
   // 处理问题点击 - 基于原文定位
   const handleProblemClick = useCallback((problem: Problem) => {
@@ -438,15 +441,30 @@ const SimpleApp: React.FC = () => {
                   title={
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>📊 完整分析报告</span>
-                      <Button 
-                        type="primary" 
-                        icon={<DownloadOutlined />} 
-                        size="small"
-                        onClick={handleExportReport}
-                        disabled={!analysisResult}
-                      >
-                        导出报告
-                      </Button>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <Select
+                          value={exportFormat}
+                          onChange={setExportFormat}
+                          size="small"
+                          style={{ width: 80 }}
+                        >
+                          <Select.Option value="html">HTML</Select.Option>
+                          <Select.Option value="txt">TXT</Select.Option>
+                          <Select.Option value="pdf">PDF</Select.Option>
+                        </Select>
+                        <Tooltip title="PDF功能需要系统依赖，如果导出失败请使用HTML或TXT格式">
+                          <InfoCircleOutlined style={{ color: '#1890ff', fontSize: '12px' }} />
+                        </Tooltip>
+                        <Button 
+                          type="primary" 
+                          icon={<DownloadOutlined />} 
+                          size="small"
+                          onClick={handleExportReport}
+                          disabled={!analysisResult}
+                        >
+                          导出报告
+                        </Button>
+                      </div>
                     </div>
                   }
                   className="result-card"

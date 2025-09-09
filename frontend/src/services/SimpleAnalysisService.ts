@@ -95,8 +95,8 @@ export class SimpleAnalysisService {
     return response.data;
   }
   
-  async exportReport(taskId: string): Promise<Blob> {
-    const response = await apiClient.get(`/document/${taskId}/export`, {
+  async exportReport(taskId: string, format: string = 'html'): Promise<Blob> {
+    const response = await apiClient.get(`/document/${taskId}/export?format=${format}`, {
       responseType: 'blob'
     });
     return response.data;

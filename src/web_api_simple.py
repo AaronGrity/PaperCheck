@@ -284,8 +284,13 @@ def get_analysis_result(task_id):
 
 @app.route('/api/document/<task_id>/export', methods=['GET'])
 def export_report(task_id):
-    """导出报告文件"""
+    """导出报告文件（支持HTML/TXT/PDF格式）"""
     try:
+        # 获取格式参数，默认为html
+        format_type = request.args.get('format', 'html').lower()
+        if format_type not in ['html', 'txt', 'pdf']:
+            format_type = 'html'
+        
         if task_id not in analysis_tasks:
             return jsonify({'error': '任务不存在'}), 404
         
@@ -295,10 +300,25 @@ def export_report(task_id):
         
         # 生成导出文件名
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"citation_report_{task.result['analysis_mode']}_{timestamp}.html"
         
-        # 创建完整的HTML文件
-        html_content = f"""
+        # 根据格式类型处理
+        if format_type == 'txt':
+            return export_report_as_txt(task, timestamp)
+        elif format_type == 'pdf':
+            return export_report_as_pdf(task, timestamp)
+        else:  # html
+            return export_report_as_html(task, timestamp)
+        
+    except Exception as e:
+        return jsonify({'error': f'导出失败: {str(e)}'}), 500
+
+
+def export_report_as_html(task, timestamp):
+    """导出为HTML格式"""
+    filename = f"citation_report_{task.result['analysis_mode']}_{timestamp}.html"
+    
+    # 创建完整的HTML文件
+    html_content = f"""
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -334,19 +354,190 @@ def export_report(task_id):
 </body>
 </html>
 """
+    
+    # 创建响应
+    from flask import Response
+    return Response(
+        html_content,
+        mimetype='text/html',
+        headers={
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+    )
+
+
+def export_report_as_txt(task, timestamp):
+    """导出为TXT格式"""
+    filename = f"citation_report_{task.result['analysis_mode']}_{timestamp}.txt"
+    
+    # 使用BeautifulSoup提取纯文本
+    from bs4 import BeautifulSoup
+    
+    # 解析HTML报告
+    soup = BeautifulSoup(task.result['report_html'], 'html.parser')
+    
+    # 提取文本内容
+    text_content = soup.get_text()
+    
+    # 创建完整的TXT内容
+    txt_content = f"""📚 文献引用合规性检查报告
+
+分析模式：{task.result['analysis_mode']}
+生成时间：{task.result['completed_at']}
+发现问题：{len(task.result['problems'])} 个
+
+{'='*50}
+
+{text_content}
+
+{'='*50}
+
+报告由 PaperCheck 文献引用合规性检查工具生成
+"""
+    
+    # 创建响应
+    from flask import Response
+    return Response(
+        txt_content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+    )
+
+
+def export_report_as_pdf(task, timestamp):
+    """导出为PDF格式"""
+    filename = f"citation_report_{task.result['analysis_mode']}_{timestamp}.pdf"
+    
+    try:
+        # 尝试导入weasyprint
+        from weasyprint import HTML, CSS
+    except ImportError as e:
+        # 如果导入失败，返回友好的错误信息
+        error_msg = "PDF导出功能不可用：缺少必要的系统依赖库。请使用HTML或TXT格式导出。"
+        print(f"PDF库导入错误: {str(e)}")
         
-        # 直接返回响应，不保存到文件
+        # 返回HTML格式的错误提示
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF导出不可用</title>
+</head>
+<body>
+    <h1>PDF导出功能不可用</h1>
+    <p>错误信息: {error_msg}</p>
+    <p>建议解决方案:</p>
+    <ul>
+        <li>请选择HTML或TXT格式进行导出</li>
+        <li>如果您需要PDF格式，请联系系统管理员安装所需的依赖库</li>
+    </ul>
+    <hr>
+    <h2>报告内容预览:</h2>
+    <div style="max-height: 300px; overflow: auto; border: 1px solid #ccc; padding: 10px;">
+        {task.result['report_html'][:1000]}...
+    </div>
+    <p><a href="/api/document/{task.task_id}/export?format=html">点击此处下载HTML格式报告</a></p>
+    <p><a href="/api/document/{task.task_id}/export?format=txt">点击此处下载TXT格式报告</a></p>
+</body>
+</html>
+"""
+        
         from flask import Response
         return Response(
             html_content,
             mimetype='text/html',
             headers={
+                'Content-Disposition': f'attachment; filename={filename.replace(".pdf", "_unavailable.html")}'
+            }
+        )
+    
+    try:
+        # 创建完整的HTML文件（用于PDF转换）
+        html_content = f"""
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文献引用合规性检查报告</title>
+    <style>
+        @page {{ margin: 2cm; }}
+        body {{ font-family: 'Microsoft YaHei', Arial, sans-serif; margin: 2cm; line-height: 1.6; }}
+        .report-header {{ text-align: center; margin-bottom: 30px; }}
+        .report-meta {{ background: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
+        h1 {{ color: #1890ff; }}
+        h2 {{ color: #262626; background: #fafafa; padding: 8px 12px; border-radius: 4px; }}
+        h3 {{ color: #595959; }}
+        .context {{ background: #f0f9ff; border-left: 4px solid #1890ff; padding: 12px; margin: 8px 0; }}
+        .analysis {{ background: #f6ffed; border-left: 4px solid #52c41a; padding: 12px; margin: 8px 0; }}
+        ul li {{ margin: 4px 0; padding: 4px; background: #fff2f0; border-left: 3px solid #ff4d4f; }}
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>📚 文献引用合规性检查报告</h1>
+    </div>
+    <div class="report-meta">
+        <p><strong>分析模式：</strong>{task.result['analysis_mode']}</p>
+        <p><strong>生成时间：</strong>{task.result['completed_at']}</p>
+        <p><strong>发现问题：</strong>{len(task.result['problems'])} 个</p>
+    </div>
+    {task.result['report_html']}
+    <hr style="margin: 30px 0;">
+    <p style="text-align: center; color: #999; font-size: 12px;">
+        报告由 PaperCheck 文献引用合规性检查工具生成
+    </p>
+</body>
+</html>
+"""
+        
+        # 转换为PDF
+        pdf_content = HTML(string=html_content).write_pdf()
+        
+        # 创建响应
+        from flask import Response
+        return Response(
+            pdf_content,
+            mimetype='application/pdf',
+            headers={
                 'Content-Disposition': f'attachment; filename={filename}'
             }
         )
-        
     except Exception as e:
-        return jsonify({'error': f'导出失败: {str(e)}'}), 500
+        # 如果PDF生成失败，返回错误信息
+        error_msg = f"PDF导出失败: {str(e)}。系统可能缺少必要的依赖库。"
+        print(f"PDF生成错误: {error_msg}")
+        
+        # 作为备选方案，返回HTML格式并提示用户
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>导出错误</title>
+</head>
+<body>
+    <h1>PDF导出失败</h1>
+    <p>错误信息: {error_msg}</p>
+    <p>建议: 请选择HTML或TXT格式进行导出，或者联系系统管理员安装PDF生成所需的依赖。</p>
+    <hr>
+    <h2>原始报告内容:</h2>
+    {task.result['report_html']}
+</body>
+</html>
+"""
+        
+        from flask import Response
+        return Response(
+            html_content,
+            mimetype='text/html',
+            headers={
+                'Content-Disposition': f'attachment; filename={filename.replace(".pdf", "_error.html")}'
+            }
+        )
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
