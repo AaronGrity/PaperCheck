@@ -1,0 +1,244 @@
+/* 简化应用样式 */
+
+.simple-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 24px;
+}
+
+.app-content {
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.main-layout {
+  display: flex;
+  height: 100%;
+  gap: 16px;
+}
+
+/* 左侧面板 */
+.left-panel {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upload-card {
+  flex-shrink: 0;
+}
+
+.preview-card {
+  flex: 1;
+  overflow: hidden;
+}
+
+.preview-card .ant-card-body {
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+}
+
+/* 右侧面板 */
+.right-panel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.control-card {
+  flex-shrink: 0;
+}
+
+.result-card {
+  flex: 1;
+  overflow: hidden;
+}
+
+.result-card .ant-card-body {
+  height: 100%;
+  overflow: auto;
+}
+
+/* 文档内容样式 */
+.document-content {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.document-content p {
+  margin-bottom: 12px;
+}
+
+.document-content h1,
+.document-content h2,
+.document-content h3 {
+  margin: 16px 0 8px 0;
+  color: #262626;
+}
+
+/* 问题列表样式 */
+.problem-item {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  margin-bottom: 8px !important;
+  padding: 12px !important;
+  transition: all 0.2s ease;
+}
+
+.problem-item:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+}
+
+.problem-item.selected {
+  border-color: #1890ff;
+  background-color: #f0f9ff;
+}
+
+/* 完整报告样式 */
+.full-report {
+  background: white;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.full-report h1 {
+  color: #1890ff;
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.full-report h2 {
+  color: #262626;
+  font-size: 16px;
+  margin: 20px 0 12px 0;
+  background: #fafafa;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.full-report h3 {
+  color: #595959;
+  font-size: 14px;
+  margin: 16px 0 8px 0;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.full-report h3:hover {
+  background-color: #f0f9ff;
+  color: #1890ff;
+}
+
+.full-report .context {
+  background: #f0f9ff;
+  border-left: 4px solid #1890ff;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.full-report .context strong {
+  color: #1890ff;
+}
+
+.full-report .analysis {
+  background: #f6ffed;
+  border-left: 4px solid #52c41a;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.full-report ul {
+  padding-left: 20px;
+}
+
+.full-report li {
+  margin: 4px 0;
+  padding: 4px;
+  background: #fff2f0;
+  border-radius: 4px;
+  border-left: 3px solid #ff4d4f;
+}
+
+/* 问题标记样式 */
+.problem-marker {
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+.problem-marker:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  
+  .left-panel,
+  .right-panel {
+    width: 100%;
+  }
+  
+  .left-panel {
+    height: 50vh;
+  }
+  
+  .right-panel {
+    height: 50vh;
+  }
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

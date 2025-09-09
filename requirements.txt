@@ -1,0 +1,13 @@
+python-docx
+requests
+pymupdf4llm
+langchain_openai
+langchain_community
+semanticscholar
+crossref
+dashscope
+tenacity
+flask
+flask-cors
+weasyprint
+beautifulsoup4

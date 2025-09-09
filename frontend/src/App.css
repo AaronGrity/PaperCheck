@@ -1,0 +1,179 @@
+/* App组件特定样式 */
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.left-panel {
+  width: 33.333%;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.upload-area {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+.document-preview {
+  flex: 1;
+  overflow: hidden;
+}
+
+.control-panel {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+/* 加载动画 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: spin 2s linear infinite;
+}
+
+/* 问题标记样式增强 */
+.problem-marker {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.problem-marker:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.problem-marker.highlighted {
+  animation: highlight 0.5s ease-in-out;
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.6);
+}
+
+@keyframes highlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 图片样式 */
+.document-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.document-content div[style*="text-align: center"] {
+  text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .main-content {
+    flex-direction: column;
+  }
+  
+  .left-panel {
+    width: 100%;
+    height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .right-panel {
+    height: 50vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .left-panel {
+    height: 40vh;
+  }
+  
+  .right-panel {
+    height: 60vh;
+  }
+  
+  .upload-area {
+    padding: 12px;
+  }
+  
+  .control-panel {
+    padding: 12px;
+  }
+}
+
+/* Ant Design 样式覆盖 */
+.ant-layout-header {
+  height: auto !important;
+  line-height: normal !important;
+}
+
+.ant-tabs-content-holder {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ant-tabs-tabpane {
+  height: 100%;
+  overflow: hidden;
+}
+
+.ant-list {
+  height: 100%;
+}
+
+.ant-empty {
+  margin: 0;
+}
+
+/* 自定义滚动条 */
+.problems-list::-webkit-scrollbar,
+.document-preview::-webkit-scrollbar {
+  width: 6px;
+}
+
+.problems-list::-webkit-scrollbar-track,
+.document-preview::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.problems-list::-webkit-scrollbar-thumb,
+.document-preview::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.problems-list::-webkit-scrollbar-thumb:hover,
+.document-preview::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

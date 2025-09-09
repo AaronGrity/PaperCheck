@@ -1,0 +1,13 @@
+{
+  "model": "qwen",
+  "model_name": "qwen-plus",
+  "api_key": "sk-070c178cdf0e47e281fb66de5988f79b",
+  "api_url": "https://www.dmxapi.cn/",
+  "semantic_scholar_api_key": "",
+  "crossref_api_key": "",
+  "download_timeout": 60,
+  "max_retries": 3,
+  "retry_delay_min": 4,
+  "retry_delay_max": 10,
+  "analysis_mode": "subjective"
+}
